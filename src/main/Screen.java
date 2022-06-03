@@ -4,9 +4,12 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOError;
+import java.io.IOException;
 
 public class Screen {
     MyFrame currentFrame;
+    Map currentMap = new Map();
     Screen()
     {
         new InterfaceFrame();
@@ -15,7 +18,7 @@ public class Screen {
 void LoadMapOn()
 {
     this.currentFrame = new LoadFrame();
-    setVisible(true);
+    setVisible(false);
 }
 
 void GameOn(){
@@ -34,7 +37,7 @@ void setVisible(boolean b)
     this.currentFrame.setVisible(b);
 }
 
-public class MyFrame extends JFrame{
+public class MyFrame extends JFrame{            //Frame 기본 틀 구현
     MyFrame(){
         setTitle("Bridge Game");
         this.setBounds(300,100,800,800);
@@ -78,7 +81,7 @@ public class MyFrame extends JFrame{
 
 }
 
-public class InterfaceFrame extends MyFrame{
+public class InterfaceFrame extends MyFrame{                //MyFrame을 통해 Interface 구현
 
     InterfaceFrame()
     {
@@ -163,13 +166,22 @@ public class InterfaceFrame extends MyFrame{
 public class GameFrame extends MyFrame{
    GameFrame(){
        setTitle("Bridge Game");
+       currentMap.printCurrentMapFile();
    }
 }
 
 public class LoadFrame extends MyFrame{
     LoadFrame()
     {
-        setTitle("Bridge Game Load Map");
+        setTitle("Bridge Game Load");
+        currentMap.selectMap();
+        currentMap.printCurrentMapFile();
+        try
+        {
+            currentMap.mapInit();
+        }
+        catch(Exception ignore){}
+        InterfaceOn();
     }
 }
 
