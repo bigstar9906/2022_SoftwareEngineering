@@ -1,11 +1,9 @@
 package src.main;
 
-
 import javax.swing.*;
 
-
 import java.awt.*;
-import java.io.File;
+import java.awt.event.*;
 
 public class Screen {
     MyFrame currentFrame;
@@ -17,26 +15,30 @@ public class Screen {
 void LoadMapOn()
 {
     this.currentFrame = new LoadFrame();
+    setVisible(true);
 }
 
 void GameOn(){
     this.currentFrame = new GameFrame();
+    setVisible(true);
 }
 
 void InterfaceOn()
 {
     this.currentFrame = new InterfaceFrame();
+    setVisible(true);
 }
 
-void setVisible()
+void setVisible(boolean b)
 {
-    this.currentFrame.setVisible(true);
+    this.currentFrame.setVisible(b);
 }
 
 public class MyFrame extends JFrame{
     MyFrame(){
         setTitle("Bridge Game");
-        setSize(800,800);
+        this.setBounds(300,100,800,800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
            
     }
 
@@ -83,22 +85,73 @@ public class InterfaceFrame extends MyFrame{
         backPanel background = new backPanel();
         background.setLayout(null);
         JButton load_btn = new JButton();
-        load_btn.setPreferredSize(new Dimension(480,50));
         set_btn_image(load_btn, "./image/Load Button.png", 480, 50);
         load_btn.setBounds(180,380,480,50);
         JButton play_btn = new JButton();
-        play_btn.setPreferredSize(new Dimension(480,50));
         set_btn_image(play_btn, "./image/Play Button.png", 480, 50);
         play_btn.setBounds(180,510,480,50);
         JButton exit_btn = new JButton();
-        exit_btn.setPreferredSize(new Dimension(480,50));
         set_btn_image(exit_btn, "./image/Exit Button.png", 480, 50);
         exit_btn.setBounds(180,640,480,50);
+        JButton selected_arrow = new JButton();
+        set_btn_image(selected_arrow, "./image/Arrow_Right.png",45,45);
+        selected_arrow.setBounds(100,100,45,45);
+        selected_arrow.setVisible(false);
+        load_btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                selected_arrow.setLocation(125,384);
+                selected_arrow.setVisible(true);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                selected_arrow.setVisible(false);
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                LoadMapOn();
+                setVisible(false);
+            }
+        });
+
+        play_btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                selected_arrow.setLocation(125,514);
+                selected_arrow.setVisible(true);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                selected_arrow.setVisible(false);
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                GameOn();
+                setVisible(false);
+            }
+        });
+
+        exit_btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                selected_arrow.setLocation(125,644);
+                selected_arrow.setVisible(true);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                selected_arrow.setVisible(false);
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                System.exit(0);
+            }
+        });
+
         background.add(load_btn);
         background.add(play_btn);
         background.add(exit_btn);
+        background.add(selected_arrow);
         this.add(background);
-        this.setBounds(300,100,800,800);
         this.setVisible(true);
         this.setResizable(false);
     }
