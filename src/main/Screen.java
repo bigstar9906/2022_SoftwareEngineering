@@ -4,38 +4,30 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOError;
-import java.io.IOException;
 
 public class Screen {
-    MyFrame currentFrame;
     Map currentMap = new Map();
     Screen()
     {
-        new InterfaceFrame();
+        new MyFrame();
+        new InterfacePanel();
     }
     
 void LoadMapOn()
 {
-    this.currentFrame = new LoadFrame();
-    setVisible(false);
+    new LoadFrame();
 }
 
 void GameOn(){
-    this.currentFrame = new GameFrame();
-    setVisible(true);
+    
 }
 
 void InterfaceOn()
 {
-    this.currentFrame = new InterfaceFrame();
-    setVisible(true);
+    new InterfacePanel();
 }
 
-void setVisible(boolean b)
-{
-    this.currentFrame.setVisible(b);
-}
+
 
 public class MyFrame extends JFrame{            //Frame 기본 틀 구현
     MyFrame(){
@@ -46,7 +38,7 @@ public class MyFrame extends JFrame{            //Frame 기본 틀 구현
     }
 
     class backPanel extends JPanel{
-        String image_name = "./image/Background.png";
+        String image_name = "./image/Interface Frame.png";
         ImageIcon i = new ImageIcon(image_name);
         Image im = i.getImage();
         public void paintComponent(Graphics g){
@@ -55,38 +47,22 @@ public class MyFrame extends JFrame{            //Frame 기본 틀 구현
         }
     }
 
-    ImageIcon imageSetSize(ImageIcon icon, int i , int j){
-        Image ximg = icon.getImage();
-        Image yimg = ximg.getScaledInstance(i,j, Image.SCALE_SMOOTH);
-        ImageIcon xyimg = new ImageIcon(yimg);
-        return xyimg;
-    }
-
-    void set_btn_image(JButton target,String Filename,int width, int height)
-    {
-        ImageIcon i = new ImageIcon(Filename);
-        i = imageSetSize(i, width, height);
-        target.setIcon(i);
-        target.setBorderPainted(false);
-        target.setFocusPainted(false);
-        target.setContentAreaFilled(false);
-    }
+    
 
     @Override
     public void setTitle(String title) {
-        // TODO Auto-generated method stub
         super.setTitle(title);
     }
 
 
 }
 
-public class InterfaceFrame extends MyFrame{                //MyFrame을 통해 Interface 구현
+public class InterfacePanel extends MyFrame{                //MyFrame을 통해 Interface 구현
 
-    InterfaceFrame()
+    InterfacePanel()
     {
-        backPanel background = new backPanel();
-        background.setLayout(null);
+        backPanel background_interface = new backPanel();
+        background_interface.setLayout(null);
         JButton load_btn = new JButton();
         set_btn_image(load_btn, "./image/Load Button.png", 480, 50);
         load_btn.setBounds(180,380,480,50);
@@ -150,11 +126,11 @@ public class InterfaceFrame extends MyFrame{                //MyFrame을 통해 
             }
         });
 
-        background.add(load_btn);
-        background.add(play_btn);
-        background.add(exit_btn);
-        background.add(selected_arrow);
-        this.add(background);
+        background_interface.add(load_btn);
+        background_interface.add(play_btn);
+        background_interface.add(exit_btn);
+        background_interface.add(selected_arrow);
+        this.add(background_interface);
         this.setVisible(true);
         this.setResizable(false);
     }
@@ -171,31 +147,77 @@ public class GameFrame extends MyFrame{
 }
 
 public class LoadFrame extends MyFrame{
+
+    JPanel mapLayout = new JPanel();
     LoadFrame()
     {
-        boolean isvalidfile=false;
-        setTitle("Bridge Game Load");
-        while(!isvalidfile)
-        {
-        currentMap.selectMap();
-        currentMap.printCurrentMapFile();
-        try
-        {
-            isvalidfile = currentMap.mapInit();
-        }
-        catch(Exception ignore){}
-        if(!isvalidfile)
-        {
-            map_load_error();
-            currentMap.MapFile = currentMap.recent_validMapFile;
-            try
-            {
-            currentMap.mapInit();
+        setTitle("Bridge Game");
+        backPanel background_Load = new backPanel();
+        background_Load.i = new ImageIcon("./image/Load Map Frame.png");
+        background_Load.im = background_Load.i.getImage();
+        background_Load.setLayout(null);
+        
+        JButton select_File_btn = new JButton();
+        set_btn_image(select_File_btn, "./image/Select File Icon.png", 80, 80);
+        select_File_btn.setBounds(660,490,80,80);
+        JButton menu_btn = new JButton();
+        set_btn_image(menu_btn, "./image/Menu Icon.png", 80, 80);
+        menu_btn.setBounds(660,625,80,80);
+
+        mapLayout.setBounds(25,165,580,580);
+        mapLayout.setLayout(null);
+        mapLayout.setBackground(new Color(255,235,228));
+        int tileSize = Math.floorDiv(580, Math.max(currentMap.Mapsize_row,currentMap.Mapsize_col));
+        System.out.println(tileSize);
+        
+        mapLayout.add(currentMapPanel(580, 580));
+
+        select_File_btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                boolean isvalidfile=false;
+                    while(!isvalidfile)
+                    {
+                    currentMap.selectMap();
+                    currentMap.printCurrentMapFile();
+                    try
+                    {
+                        isvalidfile = currentMap.mapInit();
+                    }
+                    catch(Exception ignore){}
+                    if(!isvalidfile)
+                    {
+                        map_load_error();
+                        currentMap.MapFile = currentMap.recent_validMapFile;
+                        try
+                        {
+                        currentMap.mapInit();
+                        }
+                        catch(Exception ignore) {}
+                    }
+                    }
+                    mapLayout.removeAll();
+                    mapLayout.add(currentMapPanel(580,580));
+                    mapLayout.revalidate();
+                    mapLayout.repaint();
             }
-            catch(Exception ignore) {}
-        }
-        }
-        InterfaceOn();
+        });
+
+        menu_btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                InterfaceOn();
+                setVisible(false);
+            }
+        });
+
+        background_Load.add(select_File_btn);
+        background_Load.add(menu_btn);
+        background_Load.add(mapLayout);
+        this.add(background_Load);
+        this.setVisible(true);
+        this.setResizable(true);
+        
     }
 
 
@@ -204,6 +226,78 @@ public class LoadFrame extends MyFrame{
         JOptionPane.showMessageDialog(null, "Selected Map file is not valid file.\nPlease Select another valid map file.", "ERROR",JOptionPane.ERROR_MESSAGE);
     }
 }
+
+
+    public JPanel currentMapPanel(int width,int height)
+    {
+        JPanel p = new JPanel();
+        p.setBackground(new Color(255,245,228));
+        p.setLayout(null);
+        p.setBounds(0,0,width,height);
+        p.setVisible(true);
+        int tileSize = Math.floorDiv(width, Math.max(currentMap.Mapsize_row,currentMap.Mapsize_col));
+        for(int i = 0; i<currentMap.Mapsize_row;i++)
+        {
+            for(int j = 0; j<currentMap.Mapsize_col;j++)
+            {
+                if(currentMap.isValidChar(currentMap.current_map[i][j]))
+                {
+                    JButton cell = new JButton();
+                    System.out.println(currentMap.Map_row_Min+" "+currentMap.Map_col_Min);
+                    if(1-currentMap.Map_row_Min==i&&1-currentMap.Map_col_Min==j)
+                    {
+                        set_btn_image(cell,"./image/Start ground.png", tileSize-5, tileSize-5);
+                    }
+                    else{
+                    switch(currentMap.current_map[i][j])
+                    {
+                        case 'C': case 'B' : case 'b' :
+                        set_btn_image(cell, "./image/ground.png", tileSize-5, tileSize-5);
+                        break;
+                        case 'S' :
+                        set_btn_image(cell, "./image/Saw.png", tileSize-5, tileSize-5);
+                        break;
+                        case 'P' :
+                        set_btn_image(cell, "./image/Driver.png", tileSize-5, tileSize-5);
+                        break;
+                        case 'H' :
+                        set_btn_image(cell, "./image/Hammer.png", tileSize-5, tileSize-5);
+                        break;
+                        case 'E' :
+                        set_btn_image(cell, "./image/End ground.png", tileSize-5, tileSize-5);
+                        break;
+                        case '=' :
+                        set_btn_image(cell, "./image/bridge.png", tileSize-5, tileSize-5);
+                        
+                    }
+                    }
+                    cell.setBounds(j*tileSize,i*tileSize,tileSize,tileSize);
+                    p.add(cell);
+                }
+
+            }
+        }
+        return p;
+
+    }
+
+    ImageIcon imageSetSize(ImageIcon icon, int i , int j){
+        Image ximg = icon.getImage();
+        Image yimg = ximg.getScaledInstance(i,j, Image.SCALE_SMOOTH);
+        ImageIcon xyimg = new ImageIcon(yimg);
+        return xyimg;
+    }
+
+    void set_btn_image(JButton target,String Filename,int width, int height)
+    {
+        ImageIcon i = new ImageIcon(Filename);
+        i = imageSetSize(i, width, height);
+        target.setIcon(i);
+        target.setBorderPainted(false);
+        target.setFocusPainted(false);
+        target.setContentAreaFilled(false);
+    }
+
 
 }
 

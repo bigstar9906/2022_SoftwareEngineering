@@ -2,8 +2,6 @@ package src.main;
 
 import java.io.*;
 
-import javax.sound.midi.Receiver;
-
 public class Map {
     char[][] current_map = null;
     int Mapsize_row,Mapsize_col;
@@ -16,6 +14,7 @@ public class Map {
     int Map_col_Min = 1;
     int current_row = 1;
     int current_col = 1;
+    boolean isSizeDetermined;
     
     Map()
     {
@@ -48,6 +47,7 @@ public class Map {
         char direction_passed = 'S';
         char direction_passed_opposite;
         int isAllBridgeConnected = 0;
+        
         BufferedReader reader = new BufferedReader(
             new FileReader(this.MapFile)
         );
@@ -95,6 +95,7 @@ public class Map {
         line_cnt=0;
         current_row = 1-Map_row_Min;
         current_col = 1-Map_col_Min;
+        isSizeDetermined = true;
         while((str=reader.readLine())!=null)            
         {
             current_map[current_row][current_col] = str.charAt(0);
@@ -208,14 +209,17 @@ public class Map {
         if(c == 'R')current_col +=1;
         if(c == 'U')current_row -=1;
         if(c == 'D')current_row +=1;
+        if(!isSizeDetermined)
+        {
         if(current_row>Map_row_Max) Map_row_Max=current_row;
         if(current_row<Map_row_Min) Map_row_Min=current_row;
         if(current_col>Map_col_Max) Map_col_Max=current_col;
         if(current_col<Map_col_Min) Map_col_Min=current_col;
+        }
     }
 
     void variableInit()
-    {
+    { 
         line_cnt = 0;
         Map_row_Max = 1;        
         Map_col_Max = 1;
@@ -223,6 +227,7 @@ public class Map {
         Map_col_Min = 1;
         current_row = 1;
         current_col = 1;
+        isSizeDetermined = false;
     }
 
     void printMap()
