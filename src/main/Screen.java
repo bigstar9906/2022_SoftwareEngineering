@@ -173,15 +173,35 @@ public class GameFrame extends MyFrame{
 public class LoadFrame extends MyFrame{
     LoadFrame()
     {
+        boolean isvalidfile=false;
         setTitle("Bridge Game Load");
+        while(!isvalidfile)
+        {
         currentMap.selectMap();
         currentMap.printCurrentMapFile();
         try
         {
-            currentMap.mapInit();
+            isvalidfile = currentMap.mapInit();
         }
         catch(Exception ignore){}
+        if(!isvalidfile)
+        {
+            map_load_error();
+            currentMap.MapFile = currentMap.recent_validMapFile;
+            try
+            {
+            currentMap.mapInit();
+            }
+            catch(Exception ignore) {}
+        }
+        }
         InterfaceOn();
+    }
+
+
+    public void map_load_error()
+    {
+        JOptionPane.showMessageDialog(null, "Selected Map file is not valid file.\nPlease Select another valid map file.", "ERROR",JOptionPane.ERROR_MESSAGE);
     }
 }
 
