@@ -2,26 +2,26 @@ package src.main;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.plaf.ColorUIResource;
 
 import java.awt.*;
 import java.awt.event.*;
 
 public class Screen {
-    Map currentMap = new Map();
-    Screen()
-    {
-        new MyFrame();
-        new InterfacePanel();
-    }
+Dimension screen_size = Toolkit.getDefaultToolkit().getScreenSize();
+Map currentMap = new Map();
+Screen()
+{
+    new MyFrame();
+    new InterfacePanel();
+}
     
 void LoadMapOn()
 {
     new LoadFrame();
 }
 
-void GameOn(){
-    new GameFrame();
+void GameOn(int player_num){
+    new GameFrame(player_num);
 }
 
 void InterfaceOn()
@@ -67,7 +67,6 @@ public class MyFrame extends JFrame{            //Frame 기본 틀 구현
 }
 
 public class InterfacePanel extends MyFrame{                //MyFrame을 통해 Interface 구현
-
     InterfacePanel()
     {
         backPanel background_interface = new backPanel();
@@ -116,8 +115,66 @@ public class InterfacePanel extends MyFrame{                //MyFrame을 통해 
             }
             @Override
             public void mousePressed(MouseEvent e) {
-                GameOn();
-                setVisible(false);
+                JFrame select_player_num = new JFrame();
+                select_player_num.setLayout(null);
+                select_player_num.setAlwaysOnTop(true);
+                Point frame_location = getFrameLocationX();
+                Fix_location();
+                JButton TwoPlayer_btn = new JButton();
+                set_btn_image(TwoPlayer_btn, "./image/2 Player Button.png",360,40);
+                TwoPlayer_btn.setBounds(35,75,360,40);
+                JButton ThreePlayer_btn = new JButton();
+                set_btn_image(ThreePlayer_btn, "./image/3 Player Button.png",360,40);
+                ThreePlayer_btn.setBounds(35,190,360,40);
+                JButton FourPlayer_btn = new JButton();
+                set_btn_image(FourPlayer_btn, "./image/4 Player Button.png",360,40);
+                FourPlayer_btn.setBounds(35,305,360,40);
+                select_player_num.add(TwoPlayer_btn);
+                select_player_num.add(ThreePlayer_btn);
+                select_player_num.add(FourPlayer_btn);
+                TwoPlayer_btn.addMouseListener(new MouseInputAdapter() {
+                 @Override
+                 public void mousePressed(MouseEvent e) {
+                    GameOn(2);
+                    select_player_num.setVisible(false);
+                    setVisible(false);
+                 }   
+                });
+
+                ThreePlayer_btn.addMouseListener(new MouseInputAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                       GameOn(3);
+                       select_player_num.setVisible(false);
+                       setVisible(false);
+                    }   
+                   });
+
+                   
+                FourPlayer_btn.addMouseListener(new MouseInputAdapter() {
+                 @Override
+                 public void mousePressed(MouseEvent e) {
+                    GameOn(4);
+                    select_player_num.setVisible(false);
+                    setVisible(false);                    
+                 }   
+                });
+                int temp_x,temp_y;
+                select_player_num.setUndecorated(true);
+                select_player_num.setBackground(new Color(255,245,228,227));
+                temp_x = frame_location.x+792;                          //Player 수 설정 화면이 밖으로 나가지 않게 함
+                temp_y = frame_location.y+370;
+                if(frame_location.x+1222>screen_size.width)
+                {
+                    temp_x = screen_size.width-430;
+                }
+                if(frame_location.y+792>screen_size.height)
+                {
+                    temp_y = screen_size.height-422;
+                }
+                select_player_num.setBounds(temp_x,temp_y,430,422);
+                select_player_num.setVisible(true);
+                setVisible(true);
             }
         });
 
@@ -146,14 +203,24 @@ public class InterfacePanel extends MyFrame{                //MyFrame을 통해 
         this.setResizable(false);
     }
 
-   
+    public Point getFrameLocationX()
+       {
+           return this.getLocation();
+       }
+    
+    public void Fix_location()
+       {
+           this.setEnabled(false);
+       }
     
 }
 
 public class GameFrame extends MyFrame{
     boolean isMenuOpen = false;
     JFrame menu_cover;
-   GameFrame(){       
+    Game g;
+   GameFrame(int player_num){
+       g = new Game(currentMap,player_num);
        backPanel background_Game = new backPanel();
        background_Game.setLayout(null);
        background_Game.setBackground(new Color(255,245,228));
@@ -254,10 +321,7 @@ public class LoadFrame extends MyFrame{
 
         mapLayout.setBounds(25,165,580,580);
         mapLayout.setLayout(null);
-        mapLayout.setBackground(new Color(255,235,228));
-        int tileSize = Math.floorDiv(580, Math.max(currentMap.Mapsize_row,currentMap.Mapsize_col));
-        System.out.println(tileSize);
-        
+        mapLayout.setBackground(new Color(255,235,228));        
         mapLayout.add(currentMapPanel(0,0,580, 580));
 
         select_File_btn.addMouseListener(new MouseAdapter() {
@@ -331,7 +395,6 @@ public class LoadFrame extends MyFrame{
                 if(currentMap.isValidChar(currentMap.current_map[i][j]))
                 {
                     JButton cell = new JButton();
-                    System.out.println(currentMap.Map_row_Min+" "+currentMap.Map_col_Min);
                     if(1-currentMap.Map_row_Min==i&&1-currentMap.Map_col_Min==j)
                     {
                         set_btn_image(cell,"./image/Start ground.png", tileSize-5, tileSize-5);
