@@ -1,6 +1,8 @@
 package src.main;
 
 import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.plaf.ColorUIResource;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +21,7 @@ void LoadMapOn()
 }
 
 void GameOn(){
-    
+    new GameFrame();
 }
 
 void InterfaceOn()
@@ -34,11 +36,17 @@ public class MyFrame extends JFrame{            //Frame 기본 틀 구현
         setTitle("Bridge Game");
         this.setBounds(300,100,800,800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-           
+        ImageIcon icon = new ImageIcon("./image/icon2.png");
+        Image ic = icon.getImage();
+        setIconImage(ic);
     }
 
     class backPanel extends JPanel{
-        String image_name = "./image/Interface Frame.png";
+        @Override
+        public void setBackground(Color bg) {
+            super.setBackground(new Color(255,245,228));
+        }
+        String image_name;
         ImageIcon i = new ImageIcon(image_name);
         Image im = i.getImage();
         public void paintComponent(Graphics g){
@@ -47,6 +55,7 @@ public class MyFrame extends JFrame{            //Frame 기본 틀 구현
         }
     }
 
+    
     
 
     @Override
@@ -62,6 +71,8 @@ public class InterfacePanel extends MyFrame{                //MyFrame을 통해 
     InterfacePanel()
     {
         backPanel background_interface = new backPanel();
+        background_interface.i = new ImageIcon("./image/Interface Frame.png");
+        background_interface.im = background_interface.i.getImage();
         background_interface.setLayout(null);
         JButton load_btn = new JButton();
         set_btn_image(load_btn, "./image/Load Button.png", 480, 50);
@@ -140,10 +151,89 @@ public class InterfacePanel extends MyFrame{                //MyFrame을 통해 
 }
 
 public class GameFrame extends MyFrame{
-   GameFrame(){
-       setTitle("Bridge Game");
-       currentMap.printCurrentMapFile();
+    boolean isMenuOpen = false;
+    JFrame menu_cover;
+   GameFrame(){       
+       backPanel background_Game = new backPanel();
+       background_Game.setLayout(null);
+       background_Game.setBackground(new Color(255,245,228));
+       background_Game.add(currentMapPanel(100,100,600,600));
+       JButton menu_btn = new JButton();
+       set_btn_image(menu_btn, "./image/menu_icon2.png", 80, 80);
+       menu_btn.setBounds(10,10,80,80);
+       background_Game.add(menu_btn);    
+       this.add(background_Game);
+       this.setVisible(true);
+       this.setResizable(false);
+       menu_btn.addMouseListener(new MouseAdapter() {
+        
+        @Override
+        public void mousePressed(MouseEvent e) {
+           menu_cover = new JFrame();
+           menu_cover.setLayout(null);
+           menu_cover.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+           Point frame_location = getFrameLocationX();
+           Fix_location();
+           JButton resume_btn = new JButton();
+           set_btn_image(resume_btn, "./image/Resume Button.png", 480, 50);
+           resume_btn.setBounds(150,160,480,50);
+           JButton return_btn = new JButton();
+           set_btn_image(return_btn, "./image/Return Button.png", 480, 50);
+           return_btn.setBounds(150,360,480,50);
+           JButton exit_btn = new JButton();
+           set_btn_image(exit_btn, "./image/Exit Game Button.png", 480, 50);
+           exit_btn.setBounds(150,560,480,50);
+           menu_cover.add(resume_btn);
+           menu_cover.add(return_btn);
+           menu_cover.add(exit_btn);
+           menu_cover.setBounds(frame_location.x+10,frame_location.y+30,780,760);
+           menu_cover.setUndecorated(true);
+           menu_cover.setBackground(new Color(255,245,128,122));
+           menu_cover.setVisible(true);
+
+            resume_btn.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Free_location();
+                menu_cover.setVisible(false);
+            }   
+           });
+            return_btn.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                InterfaceOn();
+                menu_cover.setVisible(false);
+                setVisible(false);            
+            }   
+           });
+
+            exit_btn.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                System.exit(0);
+                
+            }   
+           });
+
+        }
+        });
    }
+
+   public Point getFrameLocationX()
+       {
+           return this.getLocation();
+       }
+    public void Fix_location()
+    {
+        this.setEnabled(false);
+    }
+    public void Free_location()
+    {
+        this.setEnabled(true);
+    }
+
+
+
 }
 
 public class LoadFrame extends MyFrame{
@@ -151,12 +241,10 @@ public class LoadFrame extends MyFrame{
     JPanel mapLayout = new JPanel();
     LoadFrame()
     {
-        setTitle("Bridge Game");
         backPanel background_Load = new backPanel();
         background_Load.i = new ImageIcon("./image/Load Map Frame.png");
         background_Load.im = background_Load.i.getImage();
         background_Load.setLayout(null);
-        
         JButton select_File_btn = new JButton();
         set_btn_image(select_File_btn, "./image/Select File Icon.png", 80, 80);
         select_File_btn.setBounds(660,490,80,80);
@@ -170,7 +258,7 @@ public class LoadFrame extends MyFrame{
         int tileSize = Math.floorDiv(580, Math.max(currentMap.Mapsize_row,currentMap.Mapsize_col));
         System.out.println(tileSize);
         
-        mapLayout.add(currentMapPanel(580, 580));
+        mapLayout.add(currentMapPanel(0,0,580, 580));
 
         select_File_btn.addMouseListener(new MouseAdapter() {
             @Override
@@ -197,7 +285,7 @@ public class LoadFrame extends MyFrame{
                     }
                     }
                     mapLayout.removeAll();
-                    mapLayout.add(currentMapPanel(580,580));
+                    mapLayout.add(currentMapPanel(0,0,580,580));
                     mapLayout.revalidate();
                     mapLayout.repaint();
             }
@@ -216,7 +304,7 @@ public class LoadFrame extends MyFrame{
         background_Load.add(mapLayout);
         this.add(background_Load);
         this.setVisible(true);
-        this.setResizable(true);
+        this.setResizable(false);
         
     }
 
@@ -228,12 +316,12 @@ public class LoadFrame extends MyFrame{
 }
 
 
-    public JPanel currentMapPanel(int width,int height)
+    public JPanel currentMapPanel(int x, int y,int width,int height)
     {
         JPanel p = new JPanel();
         p.setBackground(new Color(255,245,228));
         p.setLayout(null);
-        p.setBounds(0,0,width,height);
+        p.setBounds(x,y,width,height);
         p.setVisible(true);
         int tileSize = Math.floorDiv(width, Math.max(currentMap.Mapsize_row,currentMap.Mapsize_col));
         for(int i = 0; i<currentMap.Mapsize_row;i++)
