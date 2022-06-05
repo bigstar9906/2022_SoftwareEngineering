@@ -126,7 +126,7 @@ public class Map {
                     isAllBridgeConnected +=1;
                 } 
             }
-            if(str.charAt(0)=='b')                                      //b 셀의 경우 다리 건너편 셀이 B인지 확인하고 사이에 다리를 설치. b셀보다 B셀이 먼저 설정될 경우
+            else if(str.charAt(0)=='b')                                      //b 셀의 경우 다리 건너편 셀이 B인지 확인하고 사이에 다리를 설치. b셀보다 B셀이 먼저 설정될 경우
             {
                 if(isValidChar(current_map[current_row][current_col-2]))      //셀 값이 들어있는지를 확인
                 {
@@ -157,6 +157,34 @@ public class Map {
             }
             else
             {
+                char[] s = new char[2];
+                s = except_direction(str.charAt(2), str.charAt(4));
+                for(int i=0;i<2;i++)
+                {
+                    int [] isSircletest = new int[2];
+                    isSircletest[0] = current_row;
+                    isSircletest[1] = current_col;
+                    System.out.println(line_cnt+" current_row:"+current_row+" current_col"+current_col);
+                    switch(s[i])
+                    {
+                        case 'U':
+                        isSircletest[0] -=1; break;
+                        case 'D':
+                        isSircletest[0] +=1; break;
+                        case 'L':
+                        isSircletest[1] -=1; break;
+                        case 'R':
+                        isSircletest[1] +=1; break;
+                    }
+                    if(isSircletest[0]>=0&&isSircletest[0]<Mapsize_row&&isSircletest[1]>=0&&isSircletest[1]<Mapsize_col)
+                    {
+                    if(isValidChar(current_map[isSircletest[0]][isSircletest[1]])&&current_map[isSircletest[0]][isSircletest[1]]!='=')
+                    {
+                        System.out.println("this file is not valid Map file.");
+                        return false;
+                    }
+                    }
+                }
                 direction_passed_opposite = oppositeDirection(direction_passed);
                 if(str.charAt(2)==direction_passed_opposite)
                 {
@@ -168,7 +196,6 @@ public class Map {
                     expandMap(str.charAt(2));
                     direction_passed = str.charAt(2);
                 }
-
             }
             line_cnt++;
         }
@@ -228,7 +255,57 @@ public class Map {
         }
         return true;
     }
-
+    char[] except_direction(char a, char b)
+    {
+        int[] UDLR = new int[4];
+        char[] result = new char[2];
+        int cnt =0;
+        for(int i = 0; i<4;i++)
+        {
+            UDLR[i] = 0;
+        }
+        switch(a)
+        {
+            case 'U':
+            UDLR[0] = 1; break;
+            case 'D':
+            UDLR[1] = 1; break;
+            case 'L':
+            UDLR[2] = 1; break;
+            case 'R': 
+            UDLR[3] = 1; break;
+        }
+        switch(b)
+        {
+            case 'U':
+            UDLR[0] = 1; break;
+            case 'D':
+            UDLR[1] = 1; break;
+            case 'L':
+            UDLR[2] = 1; break;
+            case 'R': 
+            UDLR[3] = 1; break;
+        }
+        for(int i = 0; i<4;i++)
+        {
+            if(UDLR[i]==0)
+            {
+                switch(i)
+                {
+                    case 0:
+                    result[cnt] = 'U'; break;
+                    case 1:
+                    result[cnt] = 'D'; break;
+                    case 2:
+                    result[cnt] = 'L'; break;
+                    case 3:
+                    result[cnt] = 'R'; break;
+                }
+                cnt++;
+            }
+        }
+        return result;
+    }
     void variableInit()
     { 
         line_cnt = 0;
