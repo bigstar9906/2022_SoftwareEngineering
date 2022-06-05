@@ -395,7 +395,7 @@ public class LoadFrame extends MyFrame{
                 if(currentMap.isValidChar(currentMap.current_map[i][j]))
                 {
                     JButton cell = new JButton();
-                    if(1-currentMap.Map_row_Min==i&&1-currentMap.Map_col_Min==j)
+                    if(1-currentMap.Map_row_Min==i&&0==j)
                     {
                         set_btn_image(cell,"./image/Start ground.png", tileSize-5, tileSize-5);
                     }

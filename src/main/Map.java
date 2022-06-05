@@ -11,7 +11,6 @@ public class Map {
     int Map_row_Max = 1;        //Map이 Start보다 왼쪽, End보다 오른쪽에 타일이 위치한 맵일 경우까지 구현하기 위해 시작을 1,1로 놓은 뒤 Max와 Min을 통해 Map사이즈를 파악
     int Map_col_Max = 1;
     int Map_row_Min = 1;
-    int Map_col_Min = 1;
     int current_row = 1;
     int current_col = 1;
     boolean isSizeDetermined;
@@ -60,7 +59,11 @@ public class Map {
             }
             else if(str.charAt(0)=='E')
             {
-                expandMap(direction_passed);
+                if(!expandMap(direction_passed))
+                {
+                    System.out.println("This file is not valid Map file."+line_cnt);
+                    return false;
+                }
                 System.out.println("end of file");
             }
             else
@@ -73,7 +76,11 @@ public class Map {
             }
             else
             {
-                expandMap(direction_passed);
+                if(!expandMap(direction_passed))
+                {
+                    System.out.println("This file is not valid Map file."+line_cnt);
+                    return false;
+                }
                 if(str.charAt(2)==direction_passed_opposite) direction_passed = str.charAt(4);
                 else if (str.charAt(4)==direction_passed_opposite) direction_passed = str.charAt(2);
                 else
@@ -87,14 +94,14 @@ public class Map {
         }
         reader.close();
         Mapsize_row = Map_row_Max-Map_row_Min+1;
-        Mapsize_col = Map_col_Max-Map_col_Min+1;
+        Mapsize_col = Map_col_Max;
         current_map = new char[Mapsize_row][Mapsize_col];
         reader = new BufferedReader(
             new FileReader(this.MapFile)
         );
         line_cnt=0;
         current_row = 1-Map_row_Min;
-        current_col = 1-Map_col_Min;
+        current_col = 0;
         isSizeDetermined = true;
         while((str=reader.readLine())!=null)            
         {
@@ -203,7 +210,7 @@ public class Map {
         return false;
     }
 
-    void expandMap(char c)
+    boolean expandMap(char c)
     {
         if(c == 'L')current_col -=1;
         if(c == 'R')current_col +=1;
@@ -214,8 +221,12 @@ public class Map {
         if(current_row>Map_row_Max) Map_row_Max=current_row;
         if(current_row<Map_row_Min) Map_row_Min=current_row;
         if(current_col>Map_col_Max) Map_col_Max=current_col;
-        if(current_col<Map_col_Min) Map_col_Min=current_col;
+        if(current_col<Map_col_Max)
+        {
+            return false;
         }
+        }
+        return true;
     }
 
     void variableInit()
@@ -224,7 +235,6 @@ public class Map {
         Map_row_Max = 1;        
         Map_col_Max = 1;
         Map_row_Min = 1;
-        Map_col_Min = 1;
         current_row = 1;
         current_col = 1;
         isSizeDetermined = false;
