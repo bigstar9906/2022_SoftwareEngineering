@@ -219,16 +219,37 @@ public class GameFrame extends MyFrame{
     boolean isMenuOpen = false;
     JFrame menu_cover;
     Game g;
+    JPanel Player_UI;
+    int Turn_Player=0;
    GameFrame(int player_num){
        g = new Game(currentMap,player_num);
+       JLabel Turn_1 = new JLabel(new ImageIcon("./image/1 Turn.png"));
+       JLabel Turn_2 = new JLabel(new ImageIcon("./image/2 Turn.png"));
+       JLabel Turn_3 = new JLabel(new ImageIcon("./image/3 Turn.png"));
+       JLabel Turn_4 = new JLabel(new ImageIcon("./image/4 Turn.png"));
+       JLabel [] labels = {Turn_1,Turn_2,Turn_3,Turn_4};
        backPanel background_Game = new backPanel();
        background_Game.setLayout(null);
        background_Game.setBackground(new Color(255,245,228));
        background_Game.add(currentMapPanel(100,100,600,600));
+       Player_UI = new JPanel();
+       Player_UI.setLayout(null);
+       Player_UI.setBackground(new Color(255,245,228));
+       Player_UI.setBounds(160,0,480,100);
+       for(int i =0;i<4;i++)
+       {
+           labels[i].setBounds(0,0,480,100);
+       }
+       Player_UI.add(labels[0]);
        JButton menu_btn = new JButton();
        set_btn_image(menu_btn, "./image/menu_icon2.png", 80, 80);
        menu_btn.setBounds(10,10,80,80);
+       JButton skip_btn = new JButton();
+       set_btn_image(skip_btn, "./image/Skip Button.png", 100, 100);
+       skip_btn.setBounds(680,660,100,100);
+       background_Game.add(Player_UI);
        background_Game.add(menu_btn);    
+       background_Game.add(skip_btn);
        this.add(background_Game);
        this.setVisible(true);
        this.setResizable(false);
@@ -284,6 +305,17 @@ public class GameFrame extends MyFrame{
 
         }
         });
+
+        skip_btn.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+            Player_UI.removeAll();
+            Turn_Player = g.nextTurn();
+            Player_UI.add(labels[Turn_Player]);
+            Player_UI.revalidate();
+            Player_UI.repaint();
+            }
+        });
    }
 
    public Point getFrameLocationX()
@@ -297,6 +329,10 @@ public class GameFrame extends MyFrame{
     public void Free_location()
     {
         this.setEnabled(true);
+    }
+    public void frameRepaint()
+    {
+        this.repaint();
     }
 
 
