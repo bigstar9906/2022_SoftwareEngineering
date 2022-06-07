@@ -4,9 +4,8 @@ import java.io.*;
 import javax.swing.*;
 
 public class FileManager {
-    
-    public File SelectFile()
-    {
+
+    public File SelectFile() {
         JFrame window = new JFrame();
         JFileChooser jfc = new JFileChooser();
         jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
