@@ -262,23 +262,30 @@ public class Screen {
         Point frame_location;
         JFrame menu_cover;
         JFrame move_input;
+        JFrame card_frame;
         JButton enter_btn;
         JButton done_btn;
         Game g;
         JPanel Player_UI;
         JPanel Dice_UI;
         backPanel Info_UI;
+        JPanel Card_UI;
         JPanel Map_UI;
+        JPanel Status_UI;
         JLabel[] labels_Turn;
         JLabel[] labels_Dice;
-        JLabel[] labels_Num;
+        JLabel[] labels_Num_forDice;
+        JLabel[] labels_Num_forBridge;
         JLabel[] labels_Player;
+        JLabel[] labels_Status;
         JLabel[] labels_Player_Pawn;
+        JLabel[] labels_Card;
         String move_str;
         JTextField input;
         int tileSize;
 
         GameFrame(int player_num) {
+            setSize(1000,800);
             g = new Game(currentMap, player_num);
             frame_location = getFrameLocationX();
             enter_btn = new JButton();
@@ -286,6 +293,7 @@ public class Screen {
             backPanel background_Game = new backPanel();
             background_Game.setLayout(null);
             background_Game.setBackground(new Color(255, 245, 228));
+            background_Game.setBounds(0,0,800,800);
             Map_UI = new JPanel();
             Map_UI.setLayout(null);
             Map_UI.setBackground(new Color(0,0,0,0));
@@ -309,7 +317,13 @@ public class Screen {
             Info_UI.setLayout(null);
             Info_UI.setBounds(200, 660, 360, 100);
             Info_UI.setVisible(false);
+            Status_UI = new JPanel();
+            Status_UI.setLayout(null);
+            Status_UI.setBackground(new Color(255,235,228,244));
+            Status_UI.setBounds(780,0,200,800);
             labels_init();
+            card_frame_init();
+            viewStatus();
             Player_UI.add(labels_Turn[0]);
             JButton menu_btn = new JButton();
             set_btn_image(menu_btn, "./image/menu_icon2.png", 80, 80);
@@ -328,14 +342,19 @@ public class Screen {
             set_btn_image(done_btn, "./image/Done Button.png", 100, 100);
             done_btn.setBounds(680, 660, 100, 100);
             done_btn.setVisible(false);
+            JButton card_btn = new JButton();
+            set_btn_image(card_btn, "./image/Card Button.png", 100, 100);
+            card_btn.setBounds(580,660,100,100);
             background_Game.add(Player_UI);
             background_Game.add(Dice_UI);
             background_Game.add(Info_UI);
+            background_Game.add(Status_UI);
             background_Game.add(menu_btn);
             background_Game.add(skip_btn);
             background_Game.add(dice_btn);
             background_Game.add(move_btn);
             background_Game.add(done_btn);
+            background_Game.add(card_btn);
             this.add(background_Game);
             this.setVisible(true);
             this.setResizable(false);
@@ -343,6 +362,8 @@ public class Screen {
 
                 @Override
                 public void mousePressed(MouseEvent e) {
+                    if(!card_frame.isVisible())
+                    {
                     menu_cover = new JFrame();
                     menu_cover.setLayout(null);
                     menu_cover.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -390,11 +411,14 @@ public class Screen {
                     });
 
                 }
+            }
             });
 
             skip_btn.addMouseListener(new MouseInputAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
+                    if(!card_frame.isVisible())
+                    {
                     Dice_UI.setVisible(false);
                     dice_btn.setVisible(true);
                     move_btn.setVisible(false);
@@ -404,12 +428,15 @@ public class Screen {
                     Player_UI.add(labels_Turn[g.turn_player]);
                     Player_UI.revalidate();
                     Player_UI.repaint();
+                    }
                 }
             });
 
             dice_btn.addMouseListener(new MouseInputAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
+                    if(!card_frame.isVisible())
+                    {
                     skip_btn.setVisible(false);
                     g.rollDice();
                     Dice_UI.removeAll();
@@ -425,40 +452,87 @@ public class Screen {
                         move_btn.setVisible(true);
                     }
                 }
+                }
             });
 
             move_btn.addMouseListener(new MouseInputAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
+                    if(!card_frame.isVisible())
+                    {
                     inputFrame_init();
                     move_btn.setVisible(false);
+                    }
                 }
             });
 
             done_btn.addMouseListener(new MouseInputAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
+                    if(!card_frame.isVisible())
+                    {
+                    if(g.gameOver)
+                    {
+                        printWinner();
+                        gameOver();
+                    }
+                    else
+                    {
                     Dice_UI.setVisible(false);
                     dice_btn.setVisible(true);
                     move_btn.setVisible(false);
                     done_btn.setVisible(false);
                     skip_btn.setVisible(true);
+                    Info_UI.setVisible(false);
                     g.nextTurn();
                     Player_UI.removeAll();
                     Player_UI.add(labels_Turn[g.turn_player]);
                     Player_UI.revalidate();
                     Player_UI.repaint();
+                    }
                 }
+            }
             });
 
             enter_btn.addMouseListener(new MouseInputAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
+                    if(!card_frame.isVisible())
+                    {
                     doneTexting();
+                    }
+                }
+            });
+
+            card_btn.addMouseListener(new MouseInputAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if(card_frame.isVisible()) card_frame.setVisible(false);
+                    else
+                    {
+                        viewCard(0);
+                    }
                 }
             });
 
            
+        }
+
+        public void card_frame_init()
+        {
+            card_frame = new JFrame();
+                        card_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        card_frame.setLayout(null);
+                        card_frame.setAlwaysOnTop(true);
+                        card_frame.setUndecorated(true);
+                        card_frame.setBackground(new Color(255,245,228,112));
+                        card_frame.setBounds(frame_location.x+100,frame_location.y+100,600,600);
+                        Card_UI = new JPanel();
+                        Card_UI.setLayout(null);
+                        Card_UI.setBackground(new Color(0,0,0,0));
+                        Card_UI.setBounds(0,0,600,600);
+                        card_frame.add(Card_UI);
+                        card_frame.setVisible(false);
         }
 
         public void labels_init() {
@@ -482,6 +556,23 @@ public class Screen {
                 labels_Dice[i].setBounds(0, 0, 100, 100);
             }
 
+            JLabel player_1 = new JLabel(imageSetSize(new ImageIcon("./image/Player 1.png"), 400,400));
+            JLabel player_2 = new JLabel(imageSetSize(new ImageIcon("./image/Player 2.png"), 400,400));
+            JLabel player_3 = new JLabel(imageSetSize(new ImageIcon("./image/Player 3.png"), 400,400));
+            JLabel player_4 = new JLabel(imageSetSize(new ImageIcon("./image/Player 4.png"), 400,400));
+            labels_Player = new JLabel[] {player_1,player_2,player_3,player_4};
+            for(int i=0;i<g.player_Num;i++)
+            {
+                labels_Player[i].setBounds(200,200,400,400);
+            }
+
+            JLabel status_1 = new JLabel(imageSetSize(new ImageIcon("./image/Player 1.png"), 100,100));
+            JLabel status_2 = new JLabel(imageSetSize(new ImageIcon("./image/Player 2.png"), 100,100));
+            JLabel status_3 = new JLabel(imageSetSize(new ImageIcon("./image/Player 3.png"), 100,100));
+            JLabel status_4 = new JLabel(imageSetSize(new ImageIcon("./image/Player 4.png"), 100,100));
+            labels_Status = new JLabel[] {status_1,status_2,status_3,status_4};
+           
+
             JLabel Num_0 = new JLabel(imageSetSize(new ImageIcon("./image/Num 0.png"), 30, 40));
             JLabel Num_1 = new JLabel(imageSetSize(new ImageIcon("./image/Num 1.png"), 30, 40));
             JLabel Num_2 = new JLabel(imageSetSize(new ImageIcon("./image/Num 2.png"), 30, 40));
@@ -489,10 +580,23 @@ public class Screen {
             JLabel Num_4 = new JLabel(imageSetSize(new ImageIcon("./image/Num 4.png"), 30, 40));
             JLabel Num_5 = new JLabel(imageSetSize(new ImageIcon("./image/Num 5.png"), 30, 40));
             JLabel Num_6 = new JLabel(imageSetSize(new ImageIcon("./image/Num 6.png"), 30, 40));
-            labels_Num = new JLabel[] {Num_0,Num_1,Num_2,Num_3,Num_4,Num_5,Num_6,};
+            labels_Num_forDice = new JLabel[] {Num_0,Num_1,Num_2,Num_3,Num_4,Num_5,Num_6,};
             for(int i =0;i<7;i++)
             {
-                labels_Num[i].setBounds(0,0,30,40);
+                labels_Num_forDice[i].setBounds(0,0,30,40);
+            }
+
+            JLabel Num_00 = new JLabel(imageSetSize(new ImageIcon("./image/Num 0.png"), 30, 40));
+            JLabel Num_11 = new JLabel(imageSetSize(new ImageIcon("./image/Num 1.png"), 30, 40));
+            JLabel Num_22 = new JLabel(imageSetSize(new ImageIcon("./image/Num 2.png"), 30, 40));
+            JLabel Num_33 = new JLabel(imageSetSize(new ImageIcon("./image/Num 3.png"), 30, 40));
+            JLabel Num_44 = new JLabel(imageSetSize(new ImageIcon("./image/Num 4.png"), 30, 40));
+            JLabel Num_55 = new JLabel(imageSetSize(new ImageIcon("./image/Num 5.png"), 30, 40));
+            JLabel Num_66 = new JLabel(imageSetSize(new ImageIcon("./image/Num 6.png"), 30, 40));
+            labels_Num_forBridge = new JLabel[] {Num_00,Num_11,Num_22,Num_33,Num_44,Num_55,Num_66,};
+            for(int i =0;i<7;i++)
+            {
+                labels_Num_forBridge[i].setBounds(0,0,30,40);
             }
 
             
@@ -509,10 +613,8 @@ public class Screen {
             {
                 labels_Player_Pawn[i].setBounds(0,0,tileSize,tileSize);
                 labels_Player_Pawn[i].setBackground(new Color(0,0,0,0));
-                
             }
         }
-
         public void inputFrame_init() {
             move_input = new JFrame();
             move_input.setLayout(null);
@@ -549,11 +651,45 @@ public class Screen {
 
                 }
             });
+            move_input.addWindowListener(new WindowAdapter()
+            {
+                @Override
+                public void windowOpened(WindowEvent e) {
+                    input.requestFocus();
+                }
+            });
             set_btn_image(enter_btn, "./image/Enter Button.png", 70, 29);
             enter_btn.setBounds(250, 41, 70, 29);
             move_input.add(input);
             move_input.add(enter_btn);
             move_input.setVisible(true);
+        }
+
+        public void viewStatus()
+        {
+            Status_UI.removeAll();
+            for(int i=0;i<g.player_Num;i++)
+            {
+                JPanel p = new JPanel();
+                p.setLayout(null);
+                p.setBackground(new Color(0,0,0,0));
+                p.setBounds(0,190*i,200,190);
+                labels_Status[i].setBounds(50,50,100,100);
+                JLabel player_label = new JLabel();
+                player_label.setText("Player "+(i+1));
+                player_label.setBounds(75,10,150,30);
+                JLabel score_label = new JLabel();
+                score_label.setText("score : "+g.players[i].Score);
+                score_label.setBounds(75,160,150,15);
+                JLabel cards_label = new JLabel();
+                cards_label.setText("cards : "+g.players[i].cards.size());
+                cards_label.setBounds(75,175,150,15);
+                p.add(player_label);
+                p.add(labels_Status[i]);
+                p.add(score_label);
+                p.add(cards_label);
+                Status_UI.add(p);
+            }
         }
 
         public void doneTexting() {
@@ -572,18 +708,21 @@ public class Screen {
                 move_input.setVisible(false);
                 done_btn.setVisible(true);
                 PawnReset();
+                g.calculate_Score(g.turn_player);
+                viewStatus();
             }
         }
 
         public void viewInfo() {
             int bridge_cnt = g.players[g.turn_player].num_bridges();
             int canMove = g.dice-bridge_cnt;
+            if(canMove<0)canMove=0;
             System.out.println(bridge_cnt+" "+canMove);
             Info_UI.removeAll();
-            labels_Num[bridge_cnt].setBounds(140,10,30,40);
-            Info_UI.add(labels_Num[bridge_cnt]);
-            labels_Num[canMove].setBounds(210,55,30,40);
-            Info_UI.add(labels_Num[canMove]);
+            labels_Num_forBridge[bridge_cnt].setBounds(140,10,30,40);
+            Info_UI.add(labels_Num_forBridge[bridge_cnt]);
+            labels_Num_forDice[canMove].setBounds(210,55,30,40);
+            Info_UI.add(labels_Num_forDice[canMove]);
             Info_UI.revalidate();
             Info_UI.repaint();
             Info_UI.setVisible(true);
@@ -599,6 +738,87 @@ public class Screen {
             }
             Map_UI.revalidate();
             Map_UI.repaint();
+        }
+
+        public void viewCard(int page)
+        {            
+            Card_UI.removeAll();
+            JScrollBar s = new JScrollBar(1,page,1,0,2);
+            if(g.players[g.turn_player].cards.size()>16)
+            {
+            s.setBounds(590,0,10,600);
+            Card_UI.add(s);
+            }
+            JLabel card_label=new JLabel();
+            if(page==0)
+            {
+            for(int i=0;i<g.players[g.turn_player].cards.size();i++)
+            {
+                switch(g.players[g.turn_player].cards.get(i))
+                {
+                    case '=': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Bridge Card.png"), 120, 150));break;
+                    case 'P': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Driver Card.png"), 120, 150));break;
+                    case 'H': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Hammer Card.png"), 120, 150));break;
+                    case 'S': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Saw Card.png"), 120, 150));break;
+                }
+                card_label.setBounds(24+(144*(i%4)),150*(i/4),120,150);
+                Card_UI.add(card_label);
+            }
+            }
+            else
+            {
+                for(int i=16;i<g.players[g.turn_player].cards.size();i++)
+                {
+                    switch(g.players[g.turn_player].cards.get(i))
+                    {
+                        case '=': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Bridge Card.png"), 120, 150));break;
+                        case 'P': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Driver Card.png"), 120, 150));break;
+                        case 'H': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Hammer Card.png"), 120, 150));break;
+                        case 'S': card_label= new JLabel(imageSetSize(new ImageIcon("./image/Saw Card.png"), 120, 150));break;
+                    }
+                    card_label.setBounds(24+(144*((i-16)%4)),150*((i-16)/4),120,150);
+                    Card_UI.add(card_label);
+                }
+            }
+            Card_UI.revalidate();
+            Card_UI.repaint();
+            Card_UI.setVisible(true);
+            card_frame.setVisible(true);
+            s.addMouseListener(new MouseInputAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    System.out.println(s.getValue());
+                    Card_UI.setVisible(false);
+                   viewCard(s.getValue());
+                }
+            
+            });
+        }
+
+        public void gameOver()
+        {
+            setVisible(false);
+        }
+
+        public void printWinner()
+        {
+            JFrame WinnerFrame = new JFrame();
+            WinnerFrame.setLayout(null);
+            JLabel player_label = new JLabel();
+            player_label.setText("Player "+(g.winner_num+1));
+            player_label.setBounds(310,140,200,60);
+            Font f = new Font("Cascadia Code",Font.BOLD,50);
+            player_label.setFont(f);
+            backPanel background_Winner = new backPanel();
+            background_Winner.i = new ImageIcon("./image/Winner Frame.png");
+            background_Winner.im = background_Winner.i.getImage();
+            background_Winner.setLayout(null);
+            background_Winner.add(player_label);
+            background_Winner.add(labels_Player[g.winner_num]);
+            background_Winner.setBounds(0,0,800,800);
+            WinnerFrame.add(background_Winner);
+            WinnerFrame.setBounds(300,100,800,800);
+            WinnerFrame.setVisible(true);
         }
 
         @Override
@@ -637,7 +857,6 @@ public class Screen {
                                     break;
                                 case '=':
                                     set_btn_image(cell, "./image/bridge.png", tileSize - 5, tileSize - 5);
-    
                             }
                         }
                         cell.setBounds(j * tileSize, i * tileSize, tileSize, tileSize);
@@ -689,6 +908,7 @@ public class Screen {
                 case 'l':
                 case 'r':
                 case '\b':
+                case '\u007f':
                 case '\n':
                     return true;
             }
@@ -768,6 +988,7 @@ public class Screen {
         }
     }
 
+    
     
 
     ImageIcon imageSetSize(ImageIcon icon, int i, int j) {

@@ -10,6 +10,8 @@ public class Game {
     int turn_num;
     int turn_player;
     int turn;
+    boolean gameOver;
+    int winner_num;
 
     Game(Map m, int num_of_players) {
         this.game_Map = m;
@@ -18,6 +20,8 @@ public class Game {
         turn = 0;
         turn_player =0;
         turn_num =0;
+        gameOver = false;
+        winner_num=-1;
         for (int i = 0; i < player_Num; i++) {
             players[i] = new Player(0, 1 - game_Map.Map_row_Min);
         }
@@ -45,7 +49,7 @@ public class Game {
 
     public boolean canNotMove()
     {
-        if(this.dice<this.players[turn_player].num_bridges()) return true;
+        if(this.dice<=this.players[turn_player].num_bridges()) return true;
         return false;
     }
 
@@ -63,6 +67,10 @@ public class Game {
             {
                 System.out.println("Entered Move is out of bound"+test_x+" "+test_y);
                 return false;
+            }
+            else if(game_Map.current_map[test_y][test_x]=='E')
+            {
+                break;
             }
             else if(!game_Map.isValidChar(game_Map.current_map[test_y][test_x]))
             {
@@ -85,27 +93,16 @@ public class Game {
             }
             if(current_cell=='=')
             {
-                if(s.charAt(i)=='R') players[turn_player].EnterdBridgeFrom = 'B';
-                else if(s.charAt(i)=='L') players[turn_player].EnterdBridgeFrom = 'b';
+                if(s.charAt(i)=='R'||s.charAt(i)=='r') players[turn_player].EnterdBridgeFrom = 'B';
+                else if(s.charAt(i)=='L'||s.charAt(i)=='l') players[turn_player].EnterdBridgeFrom = 'b';
             }
             if(current_cell=='E')
             {
-                switch(endPlayer_CNT())
-                {
-                    case 0:
-                    players[turn_player].Score +=7;
-                    break;
-                    case 1:
-                    players[turn_player].Score +=3;
-                    break;
-                    case 2:
-                    players[turn_player].Score +=1;
-                    break;
-                }
                 players[turn_player].isEnd = true;
+                calculate_Score(turn_player);
                 if(endPlayer_CNT()==player_Num-1)
                 {
-                    //게임 종료.
+                    GAMEOVER();
                 }
                 return true;
             }
@@ -147,5 +144,65 @@ public class Game {
             if(players[i].isEnd) cnt++;
         }
         return cnt;
+    }
+
+    public void calculate_Score(int index)
+    {
+        players[index].Score=0;
+        if(players[index].isEnd)
+        {
+        switch(endPlayer_CNT()-1)
+        {
+            case 0:
+            players[index].Score +=7;
+            players[index].rank = 1;
+            break;
+            case 1:
+            players[index].Score +=3;
+            players[index].rank = 2;
+            break;
+            case 2:
+            players[index].Score +=1;
+            players[index].rank = 3;
+            break;
+            case 3:
+            players[index].rank = 4;
+        }
+        }
+        for(int i=0;i<players[index].cards.size();i++)
+        {
+            switch(players[index].cards.get(i))
+            {
+                case 'S': players[index].Score +=3;break;
+                case 'H': players[index].Score +=2;break;
+                case 'P': players[index].Score +=1;break;
+            }
+        }
+    }
+
+    public void GAMEOVER()
+    {
+        for(int i=0;i<player_Num;i++)
+        {
+            calculate_Score(i);
+        }
+        gameOver = true;
+        int winner_score=6;//winner의 최소 점수-1로 설정하여 게임 종료 시 winner가 반드시 설정되도록 구현
+        for(int i =0;i<player_Num;i++)
+        {
+            if(winner_score<players[i].Score)
+            {
+                winner_score=players[i].Score;
+                winner_num =i;
+            }
+            else if(winner_score==players[i].Score&&players[winner_num].rank>players[i].rank)
+            {
+                winner_score=players[i].Score;
+                winner_num =i;
+            }
+        }
+        System.out.println("Winner is Player "+(winner_num+1)+". Score : "+players[winner_num].Score);
+
+
     }
 }
