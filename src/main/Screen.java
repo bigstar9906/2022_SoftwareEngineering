@@ -422,8 +422,7 @@ public class Screen {
                     Dice_UI.setVisible(false);
                     dice_btn.setVisible(true);
                     move_btn.setVisible(false);
-                    g.players[g.turn_player].throw_bridge();
-                    g.nextTurn();
+                    g.skipTurn();
                     Player_UI.removeAll();
                     Player_UI.add(labels_Turn[g.turn_player]);
                     Player_UI.revalidate();
@@ -694,7 +693,6 @@ public class Screen {
 
         public void doneTexting() {
             move_str = input.getText();
-            System.out.println(move_str);
             if (!g.move(move_str)) {
                 JOptionPane.showMessageDialog(null,
                         "Entered String is not valid move String.\nPlease Enter valid Move String.", "ERROR",
@@ -717,7 +715,6 @@ public class Screen {
             int bridge_cnt = g.players[g.turn_player].num_bridges();
             int canMove = g.dice-bridge_cnt;
             if(canMove<0)canMove=0;
-            System.out.println(bridge_cnt+" "+canMove);
             Info_UI.removeAll();
             labels_Num_forBridge[bridge_cnt].setBounds(140,10,30,40);
             Info_UI.add(labels_Num_forBridge[bridge_cnt]);
@@ -787,7 +784,6 @@ public class Screen {
             s.addMouseListener(new MouseInputAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                    System.out.println(s.getValue());
                     Card_UI.setVisible(false);
                    viewCard(s.getValue());
                 }
@@ -804,21 +800,48 @@ public class Screen {
         {
             JFrame WinnerFrame = new JFrame();
             WinnerFrame.setLayout(null);
+            WinnerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            ImageIcon icon = new ImageIcon("./image/icon2.png");
+            Image ic = icon.getImage();
+            WinnerFrame.setIconImage(ic);
             JLabel player_label = new JLabel();
             player_label.setText("Player "+(g.winner_num+1));
             player_label.setBounds(310,140,200,60);
             Font f = new Font("Cascadia Code",Font.BOLD,50);
             player_label.setFont(f);
+            JButton menu_btn = new JButton();
+            set_btn_image(menu_btn, "./image/Menu Icon.png", 80, 80);
+            menu_btn.setBounds(580, 625, 80, 80);
+            JButton exit_btn = new JButton();
+            set_btn_image(exit_btn, "./image/Exit Icon.png", 80, 80);
+            exit_btn.setBounds(660, 625, 80, 80);
             backPanel background_Winner = new backPanel();
             background_Winner.i = new ImageIcon("./image/Winner Frame.png");
             background_Winner.im = background_Winner.i.getImage();
             background_Winner.setLayout(null);
             background_Winner.add(player_label);
             background_Winner.add(labels_Player[g.winner_num]);
+            background_Winner.add(menu_btn);
+            background_Winner.add(exit_btn);
             background_Winner.setBounds(0,0,800,800);
             WinnerFrame.add(background_Winner);
             WinnerFrame.setBounds(300,100,800,800);
             WinnerFrame.setVisible(true);
+
+            menu_btn.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    InterfaceOn();
+                    WinnerFrame.setVisible(false);
+                }
+            });
+
+            exit_btn.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    System.exit(0);
+                }
+            });
         }
 
         @Override

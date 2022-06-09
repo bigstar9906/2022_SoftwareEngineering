@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Bridge_Game",
+            "request": "launch",
+            "mainClass": "src.v_console.Bridge_Game",
+            "projectName": "2022_SoftwareEngineering_f0a18567"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"

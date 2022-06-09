@@ -1,4 +1,5 @@
-package src.main;
+package src.v_console;
+
 
 import java.util.Random;
 
@@ -115,7 +116,7 @@ public class Game {
         {
             if(current_cell=='S'||current_cell=='H'||current_cell=='P') players[turn_player].getCard(current_cell);
             
-        }   
+        }
         return true;
     }
 
