@@ -1,4 +1,5 @@
-package src.main;
+package src.v_console;
+
 
 import java.util.Random;
 
@@ -13,7 +14,7 @@ public class Game {
     boolean gameOver;
     int winner_num;
 
-    Game(Map m, int num_of_players) {                                               //Game 구동을 위한 초기값 설정.
+    Game(Map m, int num_of_players) {
         this.game_Map = m;
         this.player_Num = num_of_players;
         players = new Player[this.player_Num];
@@ -27,11 +28,11 @@ public class Game {
         }
     }
 
-    public void nextTurn() {                                                        //턴 넘기기(턴 진행 완료)
+    public void nextTurn() {
         turn += 1;
         turn_num = turn/player_Num;
         turn_player = turn%player_Num;
-        while(players[turn_player].num_bridges()==6||players[turn_player].isEnd)//다리 카드가 6개 있을 경우 주사위를 굴려도 턴을 진행할 수 없으므로 자동 스킵 구현.
+        while(players[turn_player].num_bridges()==6||players[turn_player].isEnd)//다리 카드가 6개 있을 경우 주사위를 굴려도 턴을 진행할 수 없으므로 자동 스킵.
         {
             players[turn_player].throw_bridge();
             turn+=1;
@@ -40,34 +41,34 @@ public class Game {
         return;
     }
 
-    public void skipTurn()                                                      //턴 넘기기 (턴 진행 전, Bridge 카드 -1)
+    public void skipTurn()
     {
-        players[turn_player].throw_bridge();                                    
+        players[turn_player].throw_bridge();
         nextTurn();
     }
 
-    public int rollDice() {                                                     // 주사위 던지기를 랜덤 함수로 구현.
+    public int rollDice() {
         Random r = new Random();
         this.dice = r.nextInt(6)+1;
         return dice;
     }
 
-    public boolean canNotMove()                                                 //주사위 수 - Bridge 카드 수가 1보다 작을 경우 움직이지 못함
+    public boolean canNotMove()
     {
         if(this.dice<=this.players[turn_player].num_bridges()) return true;
         return false;
     }
 
-    public boolean move(String s) {                                                 //입력받은 Stiring을 기반으로 Move 구현
+    public boolean move(String s) {
         int test_y = players[turn_player].current_location[0];
         int test_x = players[turn_player].current_location[1];
         char current_cell = ' ';
         int[] one_step = new int[2];
-        for (int i = 0; i < s.length(); i++) {                                                  //Stiring의 한 글자씩 움직이며 Valid String 판단.
+        for (int i = 0; i < s.length(); i++) {
             one_step = move_1cell(s.charAt(i));
             test_y += one_step[0];
             test_x += one_step[1];
-            if(test_y<0||test_y>=game_Map.Mapsize_row||test_x<0||test_x>=game_Map.Mapsize_col)  // 맵 
+            if(test_y<0||test_y>=game_Map.Mapsize_row||test_x<0||test_x>=game_Map.Mapsize_col)
             {
                 System.out.println("Entered Move is out of bound");
                 return false;
@@ -115,7 +116,7 @@ public class Game {
         {
             if(current_cell=='S'||current_cell=='H'||current_cell=='P') players[turn_player].getCard(current_cell);
             
-        }   
+        }
         return true;
     }
 
